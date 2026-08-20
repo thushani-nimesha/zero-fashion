@@ -38,7 +38,7 @@ export default function Checkout() {
         return (
             <div className="mx-auto flex max-w-lg flex-col items-center justify-center py-24 text-center px-4">
                 <div className="rounded-full bg-muted/50 p-6 mb-4">
-                    <ShieldCheck className="h-12 w-12 text-primary animate-pulse" />
+                    <ShieldCheck className="h-12 w-12 text-primary" />
                 </div>
                 <h2 className="font-heading text-2xl font-bold">Login Required</h2>
                 <p className="mt-2 text-sm text-muted-foreground">You must be logged in to place an order. Please log in or register an account to continue.</p>
