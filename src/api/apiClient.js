@@ -1,4 +1,4 @@
-import { auth, db, googleProvider } from '../lib/firebase';
+import { auth, db, googleProvider, storage } from '../lib/firebase';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -7,6 +7,11 @@ import {
     sendPasswordResetEmail,
     onAuthStateChanged
 } from 'firebase/auth';
+import {
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL
+} from 'firebase/storage';
 import {
     ref,
     push,
@@ -529,6 +534,12 @@ export const apiClient = {
         Core: {
             UploadFile: async ({ file }) => {
                 if (!file) throw new Error("No file provided");
+                if (hasFirebase && storage) {
+                    const fileRef = storageRef(storage, `products/${Date.now()}_${file.name}`);
+                    const snapshot = await uploadBytes(fileRef, file);
+                    const file_url = await getDownloadURL(snapshot.ref);
+                    return { file_url };
+                }
                 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
                 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
                 if (!cloudName || !uploadPreset) {
