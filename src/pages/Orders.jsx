@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Loader2, Package, Clock, Truck, CheckCircle2 } from 'lucide-react';
+import { Loader2, Package, Clock, Truck, CheckCircle2, Trash2 } from 'lucide-react';
 
 const STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
@@ -20,7 +20,9 @@ export default function Orders({ isEmbedded = false }) {
     useEffect(() => {
         const fetchOrders = () => {
             apiClient.entities.Order.list('-created_date', 200)
-                .then(setOrders)
+                .then(res => {
+                    setOrders(res.filter(o => o.status !== 'removed' && o.status !== 'dismissed'));
+                })
                 .finally(() => setLoading(false));
         };
         setLoading(true);
@@ -65,6 +67,16 @@ export default function Orders({ isEmbedded = false }) {
     const updateStatus = async (id, status) => {
         try { await apiClient.entities.Order.update(id, { status }); }
         catch { toast({ title: 'Update failed', variant: 'destructive' }); }
+    };
+
+    const deleteOrder = async (id) => {
+        if (!confirm('Are you sure you want to remove this order?')) return;
+        try {
+            await apiClient.entities.Order.update(id, { status: 'removed' });
+            toast({ title: 'Order removed successfully' });
+        } catch {
+            toast({ title: 'Failed to remove order', variant: 'destructive' });
+        }
     };
 
     const statCards = [
@@ -118,9 +130,9 @@ export default function Orders({ isEmbedded = false }) {
             )}
 
             <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
-                <div className="hidden grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:grid">
+                <div className="hidden grid-cols-[auto_1fr_1fr_auto_auto_auto_auto] gap-4 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:grid">
                     <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
-                    <span>Order</span><span>Customer</span><span>Total</span><span>Status</span><span>Date</span>
+                    <span>Order</span><span>Customer</span><span>Total</span><span>Status</span><span>Date</span><span>Action</span>
                 </div>
                 <div className="divide-y divide-border">
                     {loading ? (
@@ -128,7 +140,7 @@ export default function Orders({ isEmbedded = false }) {
                     ) : filtered.length === 0 ? (
                         <p className="p-8 text-center text-sm text-muted-foreground">No orders found.</p>
                     ) : filtered.map(o => (
-                        <div key={o.id} className="grid grid-cols-1 gap-3 px-4 py-3 sm:grid-cols-[auto_1fr_1fr_auto_auto_auto] sm:items-center sm:gap-4">
+                        <div key={o.id} className="grid grid-cols-1 gap-3 px-4 py-3 sm:grid-cols-[auto_1fr_1fr_auto_auto_auto_auto] sm:items-center sm:gap-4">
                             <Checkbox checked={selected.has(o.id)} onCheckedChange={() => toggle(o.id)} />
                             <div>
                                 <p className="text-sm font-medium">#{o.order_number || o.id.slice(-6)}</p>
@@ -146,6 +158,14 @@ export default function Orders({ isEmbedded = false }) {
                                 </SelectContent>
                             </Select>
                             <span className="text-xs text-muted-foreground">{o.created_date ? new Date(o.created_date).toLocaleDateString() : ''}</span>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                onClick={() => deleteOrder(o.id)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
                         </div>
                     ))}
                 </div>

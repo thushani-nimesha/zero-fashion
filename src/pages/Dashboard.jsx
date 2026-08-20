@@ -17,16 +17,36 @@ export default function Dashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
+    const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('orders');
 
     useEffect(() => {
         if (!user?.email) return;
-        apiClient.entities.Order.filterByEmail(user.email)
-            .then(setOrders)
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        
+        const fetchDashboardData = () => {
+            apiClient.entities.Order.filterByEmail(user.email)
+                .then(res => {
+                    setOrders(res.filter(o => o.status !== 'removed' && o.status !== 'dismissed'));
+                    setNotifications(res.filter(o => o.status === 'removed'));
+                })
+                .catch(console.error)
+                .finally(() => setLoading(false));
+        };
+        
+        fetchDashboardData();
+        const unsubscribe = apiClient.entities.Order.subscribe(fetchDashboardData);
+        return unsubscribe;
     }, [user]);
+
+    const dismissNotification = async (id) => {
+        try {
+            await apiClient.entities.Order.update(id, { status: 'dismissed' });
+            setNotifications(prev => prev.filter(n => n.id !== id));
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     const handleLogout = async () => {
         await logout();
@@ -76,6 +96,16 @@ export default function Dashboard() {
 
                 {/* Main Content */}
                 <main className="flex-1">
+                    {notifications.map(n => (
+                        <div key={n.id} className="mb-6 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+                            <div>
+                                <span className="font-bold">Notice (Order #{n.order_number || n.id.slice(-6)}): </span>
+                                Due to a technical error, the order has been removed by the admin board. Please contact our admins for more details.
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/20 hover:text-destructive rounded-full" onClick={() => dismissNotification(n.id)}>Dismiss</Button>
+                        </div>
+                    ))}
+
                     {activeTab === 'orders' && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-2">
