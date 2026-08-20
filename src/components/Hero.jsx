@@ -104,7 +104,7 @@ export default function Hero() {
                         <img 
                             src={HERO_IMG} 
                             alt="Premium fashion collection" 
-                            className="h-[600px] w-full object-cover transition-transform duration-700 hover:scale-105" 
+                            className="h-[300px] sm:h-[450px] lg:h-[600px] w-full object-cover transition-transform duration-700 hover:scale-105" 
                         />
                     </div>
                 </motion.div>

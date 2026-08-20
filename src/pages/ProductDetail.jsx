@@ -51,15 +51,15 @@ export default function ProductDetail() {
                     {product.description ? <p className="mt-4 text-muted-foreground">{product.description}</p> : null}
 
                     <div className="mt-6">
-                        <Button size="lg" disabled={!product.in_stock} onClick={() => addItem(product)}>
+                        <Button size="lg" className="w-full sm:w-auto rounded-full" disabled={!product.in_stock} onClick={() => addItem(product)}>
                             <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
                         </Button>
                     </div>
 
-                    <div className="mt-6 grid grid-cols-3 gap-3 text-center">
-                        <div className="rounded-lg border border-border p-3"><Truck className="mx-auto h-5 w-5 text-primary" /><p className="mt-1 text-xs text-muted-foreground">Free Dhaka Delivery</p></div>
-                        <div className="rounded-lg border border-border p-3"><ShieldCheck className="mx-auto h-5 w-5 text-primary" /><p className="mt-1 text-xs text-muted-foreground">Official Warranty</p></div>
-                        <div className="rounded-lg border border-border p-3"><RotateCcw className="mx-auto h-5 w-5 text-primary" /><p className="mt-1 text-xs text-muted-foreground">7-Day Returns</p></div>
+                    <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3 text-center">
+                        <div className="rounded-lg border border-border p-2 sm:p-3"><Truck className="mx-auto h-5 w-5 text-primary" /><p className="mt-1 text-[10px] sm:text-xs text-muted-foreground leading-tight">Free Dhaka Delivery</p></div>
+                        <div className="rounded-lg border border-border p-2 sm:p-3"><ShieldCheck className="mx-auto h-5 w-5 text-primary" /><p className="mt-1 text-[10px] sm:text-xs text-muted-foreground leading-tight">Official Warranty</p></div>
+                        <div className="rounded-lg border border-border p-2 sm:p-3"><RotateCcw className="mx-auto h-5 w-5 text-primary" /><p className="mt-1 text-[10px] sm:text-xs text-muted-foreground leading-tight">7-Day Returns</p></div>
                     </div>
                 </div>
             </div>

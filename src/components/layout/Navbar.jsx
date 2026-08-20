@@ -92,6 +92,16 @@ export default function Navbar() {
                 <>
                   <div className="px-3 py-2 text-sm font-medium text-muted-foreground">Signed in as {user?.email}</div>
                   <Link to={user?.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setOpen(false)} className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium hover:text-primary">My Account</Link>
+                  <button 
+                    onClick={async () => {
+                      setOpen(false);
+                      await logout();
+                      navigate('/');
+                    }} 
+                    className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 mt-1"
+                  >
+                    Logout
+                  </button>
                 </>
               ) : (
                 <>
