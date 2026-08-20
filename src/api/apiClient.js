@@ -534,30 +534,30 @@ export const apiClient = {
         Core: {
             UploadFile: async ({ file }) => {
                 if (!file) throw new Error("No file provided");
+                const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+                const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+                if (cloudName && uploadPreset) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('upload_preset', uploadPreset);
+                    const res = await fetch(
+                        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                        { method: 'POST', body: formData }
+                    );
+                    const data = await res.json();
+                    if (data.secure_url) {
+                        return { file_url: data.secure_url };
+                    } else {
+                        throw new Error(data.error?.message || "Upload failed");
+                    }
+                }
                 if (hasFirebase && storage) {
                     const fileRef = storageRef(storage, `products/${Date.now()}_${file.name}`);
                     const snapshot = await uploadBytes(fileRef, file);
                     const file_url = await getDownloadURL(snapshot.ref);
                     return { file_url };
                 }
-                const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-                const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-                if (!cloudName || !uploadPreset) {
-                    return { file_url: URL.createObjectURL(file) };
-                }
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', uploadPreset);
-                const res = await fetch(
-                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-                    { method: 'POST', body: formData }
-                );
-                const data = await res.json();
-                if (data.secure_url) {
-                    return { file_url: data.secure_url };
-                } else {
-                    throw new Error(data.error?.message || "Upload failed");
-                }
+                return { file_url: URL.createObjectURL(file) };
             }
         }
     }
