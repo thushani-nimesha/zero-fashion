@@ -295,7 +295,18 @@ export const apiClient = {
             list: async () => {
                 if (hasFirebase) {
                     const snapshot = await get(ref(db, 'categories'));
-                    return snapToArray(snapshot).sort((a, b) =>
+                    let arr = snapToArray(snapshot);
+                    if (arr.length === 0) {
+                        const promises = defaultCategories.map(async (c) => {
+                            const newRef = push(ref(db, 'categories'));
+                            const payload = { name: c.name, img: c.img, created_date: new Date().toISOString() };
+                            await set(newRef, payload);
+                        });
+                        await Promise.all(promises);
+                        const freshSnapshot = await get(ref(db, 'categories'));
+                        arr = snapToArray(freshSnapshot);
+                    }
+                    return arr.sort((a, b) =>
                         (a.created_date || '').localeCompare(b.created_date || '')
                     );
                 }
@@ -331,7 +342,28 @@ export const apiClient = {
             list: async (sortStr = '-created_date', limitNum = 100) => {
                 if (hasFirebase) {
                     const snapshot = await get(ref(db, 'products'));
-                    const arr = snapToArray(snapshot);
+                    let arr = snapToArray(snapshot);
+                    if (arr.length === 0) {
+                        const promises = defaultProducts.map(async (p) => {
+                            const newRef = push(ref(db, 'products'));
+                            const payload = {
+                                name: p.name,
+                                brand: p.brand,
+                                category: p.category,
+                                price: p.price,
+                                old_price: p.old_price || null,
+                                description: p.description,
+                                image: p.image,
+                                in_stock: p.in_stock,
+                                featured: p.featured,
+                                created_date: new Date().toISOString()
+                            };
+                            await set(newRef, payload);
+                        });
+                        await Promise.all(promises);
+                        const freshSnapshot = await get(ref(db, 'products'));
+                        arr = snapToArray(freshSnapshot);
+                    }
                     return arr.sort((a, b) =>
                         (b.created_date || '').localeCompare(a.created_date || '')
                     ).slice(0, limitNum);
