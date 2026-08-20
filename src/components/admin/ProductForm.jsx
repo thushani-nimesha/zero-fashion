@@ -149,14 +149,23 @@ export default function ProductForm({ onCreated, initialData, onCancel }) {
             </div>
 
             <div className="space-y-1.5">
-                <Label>Product Image</Label>
-                <div className="flex items-center gap-4">
-                    <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:text-primary">
-                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
-                        {uploading ? 'Uploading…' : 'Upload image'}
+                <Label htmlFor="image">Product Image URL</Label>
+                <div className="flex gap-4 items-center">
+                    <Input 
+                        id="image" 
+                        value={form.image} 
+                        onChange={e => set('image', e.target.value)} 
+                        placeholder="Paste image link here (e.g. from postimages.org or unsplash)" 
+                        className="flex-1"
+                    />
+                    {form.image ? <img src={form.image} alt="preview" className="h-12 w-12 rounded-md border border-border object-cover flex-shrink-0" /> : null}
+                </div>
+                <div className="pt-1">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-3 py-1.5 text-xs text-muted-foreground hover:text-primary">
+                        {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+                        {uploading ? 'Uploading…' : 'Upload File instead'}
                         <input type="file" accept="image/*" className="hidden" onChange={onFile} disabled={uploading} />
                     </label>
-                    {form.image ? <img src={form.image} alt="preview" className="h-16 w-16 rounded-md border border-border object-cover" /> : null}
                 </div>
             </div>
 
