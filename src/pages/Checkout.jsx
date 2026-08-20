@@ -9,21 +9,45 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, ArrowLeft, ShieldCheck, Truck } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
 const FREE_SHIPPING_THRESHOLD = 2500;
 const DELIVERY_CHARGE = 100;
 
 export default function Checkout() {
+    const { isAuthenticated, user } = useAuth();
     const { items, total, clear } = useCart();
     const { toast } = useToast();
     const navigate = useNavigate();
-    const [form, setForm] = useState({ customer_name: '', customer_phone: '', customer_email: '', shipping_address: '', payment_method: 'Cash on Delivery' });
+    
+    const [form, setForm] = useState({ 
+        customer_name: user?.name || '', 
+        customer_phone: user?.phone || '', 
+        customer_email: user?.email || '', 
+        shipping_address: '', 
+        payment_method: 'Cash on Delivery' 
+    });
     const [saving, setSaving] = useState(false);
 
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
     const shippingCost = total >= FREE_SHIPPING_THRESHOLD ? 0 : DELIVERY_CHARGE;
     const finalTotal = total + shippingCost;
+
+    if (!isAuthenticated) {
+        return (
+            <div className="mx-auto flex max-w-lg flex-col items-center justify-center py-24 text-center px-4">
+                <div className="rounded-full bg-muted/50 p-6 mb-4">
+                    <ShieldCheck className="h-12 w-12 text-primary animate-pulse" />
+                </div>
+                <h2 className="font-heading text-2xl font-bold">Login Required</h2>
+                <p className="mt-2 text-sm text-muted-foreground">You must be logged in to place an order. Please log in or register an account to continue.</p>
+                <Button asChild className="mt-6 rounded-full px-8 shadow-lg shadow-primary/20">
+                    <Link to="/login?redirect=/checkout">Log in to Continue</Link>
+                </Button>
+            </div>
+        );
+    }
 
     if (items.length === 0) {
         return (
@@ -131,6 +155,15 @@ export default function Checkout() {
                                         </Label>
                                     </div>
                                 </RadioGroup>
+
+                                {form.payment_method === 'Cash on Delivery' && (
+                                    <div className="mt-6 rounded-lg bg-yellow-500/10 p-4 border border-yellow-500/20">
+                                        <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500 mb-1">Delivery Charge Payment Required First:</p>
+                                        <p className="text-xs text-muted-foreground leading-relaxed">
+                                            For Cash on Delivery, you must send the delivery charge (৳{shippingCost}) first via bKash/Nagad to confirm the order. Our team will contact you shortly on your phone number to collect it.
+                                        </p>
+                                    </div>
+                                )}
 
                                 {form.payment_method === 'bKash' && (
                                     <div className="mt-6 rounded-lg bg-[#e2136e]/10 p-4 border border-[#e2136e]/20">

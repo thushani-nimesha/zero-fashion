@@ -4,6 +4,7 @@ import { apiClient } from '@/api/apiClient';
 import { Package, UserCircle, LogOut, Clock, Truck, CheckCircle2, XCircle, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 const statusConfig = {
     pending: { color: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20', icon: Clock },
@@ -16,6 +17,7 @@ const statusConfig = {
 export default function Dashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const { toast } = useToast();
     const [orders, setOrders] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -45,6 +47,25 @@ export default function Dashboard() {
             setNotifications(prev => prev.filter(n => n.id !== id));
         } catch (e) {
             console.error(e);
+        }
+    };
+
+    const canCancel = (orderDate) => {
+        if (!orderDate) return false;
+        const created = new Date(orderDate).getTime();
+        const now = Date.now();
+        const diffMs = now - created;
+        const diffHours = diffMs / (1000 * 60 * 60);
+        return diffHours < 5;
+    };
+
+    const handleCancelOrder = async (id) => {
+        if (!confirm('Are you sure you want to cancel this order?')) return;
+        try {
+            await apiClient.entities.Order.update(id, { status: 'cancelled' });
+            toast({ title: 'Order cancelled successfully' });
+        } catch {
+            toast({ title: 'Failed to cancel order', variant: 'destructive' });
         }
     };
 
@@ -144,6 +165,16 @@ export default function Dashboard() {
                                                             {order.status}
                                                         </span>
                                                         <p className="font-heading font-bold text-lg">৳{order.total?.toLocaleString()}</p>
+                                                        {order.status === 'pending' && canCancel(order.created_date) && (
+                                                            <Button 
+                                                                size="sm" 
+                                                                variant="outline" 
+                                                                className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full h-8 px-4 text-xs mt-1"
+                                                                onClick={() => handleCancelOrder(order.id)}
+                                                            >
+                                                                Cancel Order
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="p-4 sm:p-6 bg-card">
