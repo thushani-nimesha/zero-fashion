@@ -67,7 +67,6 @@ export default function OnboardingModal() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Photo Upload */}
                     <div className="flex flex-col items-center gap-2 mb-2">
                         <div className="relative h-20 w-20 rounded-full border border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden">
                             {photoUrl ? (
@@ -90,7 +89,6 @@ export default function OnboardingModal() {
                         </label>
                     </div>
 
-                    {/* Mobile Number */}
                     <div className="space-y-2">
                         <Label htmlFor="onboarding-phone">Mobile Number</Label>
                         <div className="relative">
@@ -108,7 +106,6 @@ export default function OnboardingModal() {
                         </div>
                     </div>
 
-                    {/* Address */}
                     <div className="space-y-2">
                         <Label htmlFor="onboarding-address">Delivery Address</Label>
                         <div className="relative">

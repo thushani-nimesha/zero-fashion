@@ -346,7 +346,6 @@ export default function Dashboard() {
                             <div className="bg-card/45 backdrop-blur-xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_0_60px_-10px_rgba(255,255,255,0.04)] border border-border/60 dark:border-white/10 p-8 relative overflow-hidden before:absolute before:top-0 before:left-1/6 before:right-1/6 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-primary/50 before:to-transparent">
                                 {isEditingProfile ? (
                                     <div className="space-y-5">
-                                        {/* Name */}
                                         <div className="space-y-2">
                                             <Label htmlFor="edit-name">Full Name</Label>
                                             <Input 
@@ -357,7 +356,6 @@ export default function Dashboard() {
                                             />
                                         </div>
 
-                                        {/* Image Upload */}
                                         <div className="space-y-2">
                                             <Label>Profile Photo</Label>
                                             <div className="flex items-center gap-4 p-3 border border-border bg-background/50 rounded-lg">
@@ -399,7 +397,6 @@ export default function Dashboard() {
                                             </div>
                                         </div>
 
-                                        {/* Mobile Number & Verification */}
                                         <div className="space-y-2">
                                             <Label htmlFor="edit-phone">Mobile Number</Label>
                                             <div className="flex flex-col sm:flex-row gap-2">
@@ -441,7 +438,6 @@ export default function Dashboard() {
                                             </div>
                                         </div>
 
-                                        {/* Address */}
                                         <div className="space-y-2">
                                             <Label htmlFor="edit-address">Delivery Address</Label>
                                             <Input 
@@ -486,7 +482,6 @@ export default function Dashboard() {
                                 )}
                             </div>
 
-                            {/* Password Security Section (Hidden for Google users) */}
                             {user.provider !== 'google' && (
                                 <div className="space-y-4 mt-8">
                                     <h2 className="font-heading text-xl font-bold text-left">Security</h2>
