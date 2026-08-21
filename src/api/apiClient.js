@@ -148,8 +148,10 @@ export const apiClient = {
                 id: 'google_user_' + Date.now(),
                 email: 'googleuser@example.com',
                 name: 'Google User',
-                phone: '01700000000',
+                phone: '',
+                address: '',
                 role: 'user',
+                provider: 'google',
                 phoneVerified: true
             };
             const users = getLocal('zf_users', []);
@@ -162,7 +164,7 @@ export const apiClient = {
             sessionStorage.setItem('zf_current_user_id', existingUser.id);
             if (redirectUrl) window.location.href = redirectUrl;
         },
-        register: async ({ email, password, name, phone, photo_url }) => {
+        register: async ({ email, password, name, phone, address, photo_url }) => {
             if (hasFirebase) {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
@@ -171,6 +173,7 @@ export const apiClient = {
                     email,
                     name,
                     phone,
+                    address: address || '',
                     photo_url: photo_url || '',
                     role: email === import.meta.env.VITE_ADMIN_EMAIL ? 'admin' : 'user',
                     phoneVerified: false
@@ -188,6 +191,7 @@ export const apiClient = {
                 password,
                 name,
                 phone,
+                address: address || '',
                 photo_url: photo_url || '',
                 role: (email === import.meta.env.VITE_ADMIN_EMAIL || email.includes('admin')) ? 'admin' : 'user',
                 phoneVerified: false
@@ -240,8 +244,9 @@ export const apiClient = {
                         if (user) {
                             try {
                                 const userSnap = await get(ref(db, `users/${user.uid}`));
+                                const provider = user.providerData?.[0]?.providerId === 'google.com' ? 'google' : 'password';
                                 if (userSnap.exists()) {
-                                    resolve(userSnap.val());
+                                    resolve({ ...userSnap.val(), provider });
                                 } else {
                                     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
                                     const isAdmin = user.email === adminEmail;
@@ -250,17 +255,20 @@ export const apiClient = {
                                         email: user.email,
                                         name: user.displayName || 'User',
                                         role: isAdmin ? 'admin' : 'user',
+                                        provider,
                                         phoneVerified: false
                                     });
                                 }
                             } catch {
                                 const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
                                 const isAdmin = user.email === adminEmail;
+                                const provider = user.providerData?.[0]?.providerId === 'google.com' ? 'google' : 'password';
                                 resolve({
                                     id: user.uid,
                                     email: user.email,
                                     name: user.displayName || 'User',
                                     role: isAdmin ? 'admin' : 'user',
+                                    provider,
                                     phoneVerified: false
                                 });
                             }

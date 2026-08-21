@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { apiClient } from '@/api/apiClient';
-import { Package, UserCircle, LogOut, Clock, Truck, CheckCircle2, XCircle, LayoutDashboard } from 'lucide-react';
+import { Package, UserCircle, LogOut, Clock, Truck, CheckCircle2, XCircle, LayoutDashboard, Camera, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -29,6 +29,9 @@ export default function Dashboard() {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [editName, setEditName] = useState(user?.name || '');
     const [editPhotoUrl, setEditPhotoUrl] = useState(user?.photo_url || '');
+    const [editPhone, setEditPhone] = useState(user?.phone || '');
+    const [editAddress, setEditAddress] = useState(user?.address || '');
+    const [uploading, setUploading] = useState(false);
 
     const [passwordStep, setPasswordStep] = useState('idle'); // idle, verif, input
     const [verificationCode, setVerificationCode] = useState('');
@@ -36,11 +39,17 @@ export default function Dashboard() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
+    const [phoneStep, setPhoneStep] = useState('idle'); // idle, verif, verified
+    const [phoneVerificationCode, setPhoneVerificationCode] = useState('');
+    const [phoneSentCode, setPhoneSentCode] = useState('');
+
     // Update form states when user changes
     useEffect(() => {
         if (user) {
             setEditName(user.name || '');
             setEditPhotoUrl(user.photo_url || '');
+            setEditPhone(user.phone || '');
+            setEditAddress(user.address || '');
         }
     }, [user]);
 
@@ -96,12 +105,42 @@ export default function Dashboard() {
     };
 
     const handleSaveProfile = async () => {
+        if (editPhone !== user.phone && phoneStep !== 'verified') {
+            toast({ title: 'Please verify your mobile number change first', variant: 'destructive' });
+            return;
+        }
         try {
-            await updateCurrentUser({ name: editName, photo_url: editPhotoUrl });
+            await updateCurrentUser({ 
+                name: editName, 
+                photo_url: editPhotoUrl, 
+                phone: editPhone, 
+                address: editAddress 
+            });
             setIsEditingProfile(false);
+            setPhoneStep('idle');
             toast({ title: 'Profile updated successfully' });
         } catch {
             toast({ title: 'Failed to update profile', variant: 'destructive' });
+        }
+    };
+
+    const handleSendPhoneCode = () => {
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        setPhoneSentCode(code);
+        setPhoneStep('verif');
+        toast({ 
+            title: 'Phone Verification Code Sent!', 
+            description: `We've sent a 6-digit code to ${user.email}. (Code: ${code})`,
+            duration: 10000
+        });
+    };
+
+    const handleVerifyPhoneCode = () => {
+        if (phoneVerificationCode === phoneSentCode) {
+            setPhoneStep('verified');
+            toast({ title: 'Phone number verified! You can now save changes.' });
+        } else {
+            toast({ title: 'Invalid verification code', variant: 'destructive' });
         }
     };
 
@@ -303,130 +342,223 @@ export default function Dashboard() {
 
                             <div className="bg-card/45 backdrop-blur-xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_0_60px_-10px_rgba(255,255,255,0.04)] border border-border/60 dark:border-white/10 p-8 relative overflow-hidden before:absolute before:top-0 before:left-1/6 before:right-1/6 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-primary/50 before:to-transparent">
                                 {isEditingProfile ? (
-                                    <div className="space-y-4">
-                                        <div className="grid gap-4 sm:grid-cols-2">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="edit-name">Full Name</Label>
-                                                <Input 
-                                                    id="edit-name"
-                                                    value={editName}
-                                                    onChange={e => setEditName(e.target.value)}
-                                                    placeholder="Enter full name"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="edit-photo">Profile Photo URL (Optional)</Label>
-                                                <Input 
-                                                    id="edit-photo"
-                                                    value={editPhotoUrl}
-                                                    onChange={e => setEditPhotoUrl(e.target.value)}
-                                                    placeholder="Paste photo URL"
-                                                />
+                                    <div className="space-y-5">
+                                        {/* Name */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="edit-name">Full Name</Label>
+                                            <Input 
+                                                id="edit-name"
+                                                value={editName}
+                                                onChange={e => setEditName(e.target.value)}
+                                                placeholder="Enter full name"
+                                            />
+                                        </div>
+
+                                        {/* Image Upload */}
+                                        <div className="space-y-2">
+                                            <Label>Profile Photo</Label>
+                                            <div className="flex items-center gap-4 p-3 border border-border bg-background/50 rounded-lg">
+                                                <div className="relative h-12 w-12 rounded-full border border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                                    {editPhotoUrl ? (
+                                                        <img src={editPhotoUrl} alt="Profile" className="h-full w-full object-cover" />
+                                                    ) : uploading ? (
+                                                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                                                    ) : (
+                                                        <Camera className="h-4 w-4 text-muted-foreground" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 text-left">
+                                                    <label className="text-xs text-primary font-semibold hover:underline cursor-pointer">
+                                                        {uploading ? 'Uploading...' : editPhotoUrl ? 'Change Image' : 'Choose Profile Picture'}
+                                                        <input 
+                                                            type="file" 
+                                                            accept="image/*" 
+                                                            onChange={async (e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (!file) return;
+                                                                setUploading(true);
+                                                                try {
+                                                                    const url = await apiClient.uploadFile(file);
+                                                                    setEditPhotoUrl(url);
+                                                                    toast({ title: 'Photo uploaded successfully' });
+                                                                } catch (err) {
+                                                                    toast({ title: 'Upload failed', variant: 'destructive' });
+                                                                } finally {
+                                                                    setUploading(false);
+                                                                }
+                                                            }} 
+                                                            className="hidden" 
+                                                            disabled={uploading}
+                                                        />
+                                                    </label>
+                                                    <p className="text-[10px] text-muted-foreground mt-0.5">JPG, PNG or GIF up to 5MB</p>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex gap-2 justify-end pt-2">
-                                            <Button onClick={() => setIsEditingProfile(false)} variant="ghost" size="sm">Cancel</Button>
+
+                                        {/* Mobile Number & Verification */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="edit-phone">Mobile Number</Label>
+                                            <div className="flex flex-col sm:flex-row gap-2">
+                                                <Input 
+                                                    id="edit-phone"
+                                                    value={editPhone}
+                                                    onChange={e => {
+                                                        setEditPhone(e.target.value);
+                                                        if (e.target.value !== user.phone) {
+                                                            if (phoneStep === 'verified') setPhoneStep('idle');
+                                                        }
+                                                    }}
+                                                    placeholder="Enter mobile number"
+                                                    disabled={phoneStep === 'verified'}
+                                                />
+                                                {editPhone !== user.phone && (
+                                                    <div className="flex gap-2">
+                                                        {phoneStep === 'idle' && (
+                                                            <Button type="button" onClick={handleSendPhoneCode} variant="outline" size="sm" className="w-full sm:w-auto">
+                                                                Send Code
+                                                            </Button>
+                                                        )}
+                                                        {phoneStep === 'verif' && (
+                                                            <div className="flex gap-2 w-full">
+                                                                <Input 
+                                                                    placeholder="6-digit code"
+                                                                    value={phoneVerificationCode}
+                                                                    onChange={e => setPhoneVerificationCode(e.target.value)}
+                                                                    className="w-28 text-center font-mono font-bold"
+                                                                />
+                                                                <Button type="button" onClick={handleVerifyPhoneCode} size="sm">Verify</Button>
+                                                            </div>
+                                                        )}
+                                                        {phoneStep === 'verified' && (
+                                                            <span className="text-xs text-green-500 font-semibold flex items-center gap-1">Verified</span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Address */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="edit-address">Delivery Address</Label>
+                                            <Input 
+                                                id="edit-address"
+                                                value={editAddress}
+                                                onChange={e => setEditAddress(e.target.value)}
+                                                placeholder="Enter full shipping address"
+                                            />
+                                        </div>
+
+                                        <div className="flex gap-2 justify-end pt-4 border-t border-border/50">
+                                            <Button onClick={() => {
+                                                setIsEditingProfile(false);
+                                                setPhoneStep('idle');
+                                            }} variant="ghost" size="sm">Cancel</Button>
                                             <Button onClick={handleSaveProfile} size="sm">Save Changes</Button>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="grid gap-6 sm:grid-cols-2">
+                                    <div className="flex flex-col gap-5 divide-y divide-border/50">
                                         <div>
-                                            <p className="text-sm text-muted-foreground mb-1">Name</p>
-                                            <p className="font-medium">{user.name || 'Not set'}</p>
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Name</p>
+                                            <p className="font-semibold text-foreground">{user.name || 'Not set'}</p>
                                         </div>
-                                        <div>
-                                            <p className="text-sm text-muted-foreground mb-1">Email</p>
-                                            <p className="font-medium">{user.email}</p>
+                                        <div className="pt-4">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Email</p>
+                                            <p className="font-semibold text-foreground">{user.email}</p>
                                         </div>
-                                        <div>
-                                            <p className="text-sm text-muted-foreground mb-1">Account Role</p>
-                                            <p className="font-medium capitalize">{user.role || 'User'}</p>
+                                        <div className="pt-4">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Mobile Number</p>
+                                            <p className="font-semibold text-foreground">{user.phone || 'Not set'}</p>
                                         </div>
-                                        {user.photo_url && (
-                                            <div className="sm:col-span-2">
-                                                <p className="text-sm text-muted-foreground mb-1">Photo URL</p>
-                                                <p className="font-medium truncate text-xs text-muted-foreground">{user.photo_url}</p>
-                                            </div>
-                                        )}
+                                        <div className="pt-4">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Delivery Address</p>
+                                            <p className="font-semibold text-foreground">{user.address || 'Not set'}</p>
+                                        </div>
+                                        <div className="pt-4">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Account Role</p>
+                                            <p className="font-semibold text-foreground capitalize">{user.role || 'User'}</p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Password Security Section */}
-                            <div className="space-y-4 mt-8">
-                                <h2 className="font-heading text-xl font-bold">Security</h2>
-                                <div className="bg-card/45 backdrop-blur-xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_0_60px_-10px_rgba(255,255,255,0.04)] border border-border/60 dark:border-white/10 p-8 relative overflow-hidden before:absolute before:top-0 before:left-1/6 before:right-1/6 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-primary/50 before:to-transparent">
-                                    {passwordStep === 'idle' && (
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                            <div>
-                                                <p className="font-medium text-foreground">Password</p>
-                                                <p className="text-sm text-muted-foreground">Request email verification to securely change your password.</p>
+                            {/* Password Security Section (Hidden for Google users) */}
+                            {user.provider !== 'google' && (
+                                <div className="space-y-4 mt-8">
+                                    <h2 className="font-heading text-xl font-bold text-left">Security</h2>
+                                    <div className="bg-card/45 backdrop-blur-xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_0_60px_-10px_rgba(255,255,255,0.04)] border border-border/60 dark:border-white/10 p-8 relative overflow-hidden before:absolute before:top-0 before:left-1/6 before:right-1/6 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-primary/50 before:to-transparent text-left">
+                                        {passwordStep === 'idle' && (
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                <div>
+                                                    <p className="font-medium text-foreground">Password</p>
+                                                    <p className="text-sm text-muted-foreground">Request email verification to securely change your password.</p>
+                                                </div>
+                                                <Button onClick={handleSendCode} variant="outline" size="sm" className="rounded-full">
+                                                    Change Password
+                                                </Button>
                                             </div>
-                                            <Button onClick={handleSendCode} variant="outline" size="sm" className="rounded-full">
-                                                Change Password
-                                            </Button>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {passwordStep === 'verif' && (
-                                        <div className="space-y-4">
-                                            <div>
-                                                <p className="font-medium text-foreground">Verify Email</p>
-                                                <p className="text-sm text-muted-foreground">Enter the 6-digit code sent to your email to continue.</p>
+                                        {passwordStep === 'verif' && (
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <p className="font-medium text-foreground">Verify Email</p>
+                                                    <p className="text-sm text-muted-foreground">Enter the 6-digit code sent to your email to continue.</p>
+                                                </div>
+                                                <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+                                                    <Input 
+                                                        placeholder="Enter 6-digit code"
+                                                        value={verificationCode}
+                                                        onChange={e => setVerificationCode(e.target.value)}
+                                                        maxLength={6}
+                                                        className="tracking-widest text-center font-mono font-bold"
+                                                    />
+                                                    <div className="flex gap-2">
+                                                        <Button onClick={handleVerifyCode} size="sm">Verify Code</Button>
+                                                        <Button onClick={() => setPasswordStep('idle')} variant="ghost" size="sm">Cancel</Button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col sm:flex-row gap-3 max-w-md">
-                                                <Input 
-                                                    placeholder="Enter 6-digit code"
-                                                    value={verificationCode}
-                                                    onChange={e => setVerificationCode(e.target.value)}
-                                                    maxLength={6}
-                                                    className="tracking-widest text-center font-mono font-bold"
-                                                />
-                                                <div className="flex gap-2">
-                                                    <Button onClick={handleVerifyCode} size="sm">Verify Code</Button>
+                                        )}
+
+                                        {passwordStep === 'input' && (
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <p className="font-medium text-foreground">Set New Password</p>
+                                                    <p className="text-sm text-muted-foreground">Enter and confirm your new account password.</p>
+                                                </div>
+                                                <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="new-pwd">New Password</Label>
+                                                        <Input 
+                                                            id="new-pwd"
+                                                            type="password"
+                                                            value={newPassword}
+                                                            onChange={e => setNewPassword(e.target.value)}
+                                                            placeholder="••••••••"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="confirm-pwd">Confirm New Password</Label>
+                                                        <Input 
+                                                            id="confirm-pwd"
+                                                            type="password"
+                                                            value={confirmPassword}
+                                                            onChange={e => setConfirmPassword(e.target.value)}
+                                                            placeholder="••••••••"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 justify-end pt-2 max-w-xl">
                                                     <Button onClick={() => setPasswordStep('idle')} variant="ghost" size="sm">Cancel</Button>
+                                                    <Button onClick={handleSavePassword} size="sm">Update Password</Button>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-
-                                    {passwordStep === 'input' && (
-                                        <div className="space-y-4">
-                                            <div>
-                                                <p className="font-medium text-foreground">Set New Password</p>
-                                                <p className="text-sm text-muted-foreground">Enter and confirm your new account password.</p>
-                                            </div>
-                                            <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="new-pwd">New Password</Label>
-                                                    <Input 
-                                                        id="new-pwd"
-                                                        type="password"
-                                                        value={newPassword}
-                                                        onChange={e => setNewPassword(e.target.value)}
-                                                        placeholder="••••••••"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="confirm-pwd">Confirm New Password</Label>
-                                                    <Input 
-                                                        id="confirm-pwd"
-                                                        type="password"
-                                                        value={confirmPassword}
-                                                        onChange={e => setConfirmPassword(e.target.value)}
-                                                        placeholder="••••••••"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2 justify-end pt-2 max-w-xl">
-                                                <Button onClick={() => setPasswordStep('idle')} variant="ghost" size="sm">Cancel</Button>
-                                                <Button onClick={handleSavePassword} size="sm">Update Password</Button>
-                                            </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     )}
                 </main>

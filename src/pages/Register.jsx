@@ -4,7 +4,7 @@ import { apiClient } from "@/api/apiClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2, User, Phone, Image } from "lucide-react";
+import { UserPlus, Mail, Lock, Loader2, User, Phone, Image, Camera, MapPin } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
@@ -14,7 +14,9 @@ export default function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [address, setAddress] = useState("");
     const [photoUrl, setPhotoUrl] = useState("");
+    const [uploading, setUploading] = useState(false);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
@@ -31,7 +33,7 @@ export default function Register() {
         }
         setLoading(true);
         try {
-            await apiClient.auth.register({ email, password, name, phone, photo_url: photoUrl });
+            await apiClient.auth.register({ email, password, name, phone, address, photo_url: photoUrl });
             setShowOtp(true);
         } catch (err) {
             setError(err.message || "Registration failed");
@@ -218,16 +220,58 @@ export default function Register() {
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="photo">Profile Photo URL (Optional)</Label>
+                    <Label>Profile Photo (Optional)</Label>
+                    <div className="flex items-center gap-4 p-3 border border-input bg-background/50 rounded-lg">
+                        <div className="relative h-12 w-12 rounded-full border border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {photoUrl ? (
+                                <img src={photoUrl} alt="Preview" className="h-full w-full object-cover" />
+                            ) : uploading ? (
+                                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            ) : (
+                                <Camera className="h-4 w-4 text-muted-foreground" />
+                            )}
+                        </div>
+                        <div className="flex-1 text-left">
+                            <label className="text-xs text-primary font-semibold hover:underline cursor-pointer">
+                                {uploading ? 'Uploading...' : photoUrl ? 'Change Image' : 'Choose Profile Picture'}
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        setUploading(true);
+                                        try {
+                                            const url = await apiClient.uploadFile(file);
+                                            setPhotoUrl(url);
+                                            toast({ title: 'Photo uploaded successfully' });
+                                        } catch (err) {
+                                            toast({ title: 'Upload failed', variant: 'destructive' });
+                                        } finally {
+                                            setUploading(false);
+                                        }
+                                    }} 
+                                    className="hidden" 
+                                    disabled={uploading}
+                                />
+                            </label>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">JPG, PNG or GIF up to 5MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="address">Delivery Address</Label>
                     <div className="relative">
-                        <Image className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
                         <Input
-                            id="photo"
+                            id="address"
                             type="text"
-                            placeholder="https://example.com/avatar.jpg"
-                            value={photoUrl}
-                            onChange={(e) => setPhotoUrl(e.target.value)}
+                            placeholder="Enter your full shipping address"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
                             className="pl-10 h-12"
+                            required
                         />
                     </div>
                 </div>
