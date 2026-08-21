@@ -17,20 +17,25 @@ export default function ProductCard({ product }) {
                     </span>
                 ) : null}
                 {!product.in_stock && <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2 py-1 text-xs font-semibold uppercase tracking-wider shadow-sm">Sold Out</span>}
-                
-                <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <Button size="sm" className="w-full shadow-lg" disabled={!product.in_stock} onClick={(e) => { e.preventDefault(); addItem(product); }}>
-                        <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-                    </Button>
-                </div>
             </Link>
-            <div className="mt-4 flex flex-col">
-                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">{product.brand}</p>
-                <Link to={`/product/${product.id}`} className="mt-1 text-sm font-semibold transition hover:text-primary">{product.name}</Link>
-                <div className="mt-1 flex items-center gap-2">
-                    <span className="font-heading font-bold text-foreground">৳{product.price.toLocaleString()}</span>
-                    {product.old_price ? <span className="text-sm text-muted-foreground line-through">৳{product.old_price.toLocaleString()}</span> : null}
+            <div className="mt-3 flex flex-col flex-1 justify-between">
+                <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">{product.brand}</p>
+                    <Link to={`/product/${product.id}`} className="mt-1 block text-sm font-semibold transition hover:text-primary line-clamp-1">{product.name}</Link>
+                    <div className="mt-1 flex items-center gap-2">
+                        <span className="font-heading font-bold text-foreground">৳{product.price.toLocaleString()}</span>
+                        {product.old_price ? <span className="text-xs text-muted-foreground line-through">৳{product.old_price.toLocaleString()}</span> : null}
+                    </div>
                 </div>
+                <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full mt-3 rounded-full hover:bg-primary hover:text-primary-foreground border-border/80 transition-colors duration-200" 
+                    disabled={!product.in_stock} 
+                    onClick={(e) => { e.preventDefault(); addItem(product); }}
+                >
+                    <ShoppingCart className="mr-1.5 h-3.5 w-3.5" /> Add to Cart
+                </Button>
             </div>
         </div>
     );
