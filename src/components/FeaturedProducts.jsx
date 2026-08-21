@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { apiClient } from '@/api/apiClient';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 export default function FeaturedProducts() {
     const [products, setProducts] = useState([]);
@@ -15,7 +16,13 @@ export default function FeaturedProducts() {
     }, []);
 
     return (
-        <section className="mx-auto max-w-7xl px-4 py-12">
+        <motion.section 
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            className="mx-auto max-w-7xl px-4 py-12"
+        >
             <div className="mb-6 flex items-end justify-between">
                 <div>
                     <h2 className="font-heading text-2xl font-bold sm:text-3xl">Featured Products</h2>
@@ -32,6 +39,6 @@ export default function FeaturedProducts() {
                     {products.map(p => <ProductCard key={p.id} product={p} />)}
                 </div>
             )}
-        </section>
+        </motion.section>
     );
 }

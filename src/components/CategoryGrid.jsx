@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '@/api/apiClient';
+import { motion } from 'framer-motion';
 
 export default function CategoryGrid() {
     const [categories, setCategories] = useState([]);
@@ -15,7 +16,13 @@ export default function CategoryGrid() {
     if (!loading && categories.length === 0) return null;
 
     return (
-        <section className="mx-auto max-w-7xl px-4 py-12">
+        <motion.section 
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto max-w-7xl px-4 py-12"
+        >
             <div className="mb-6 text-center">
                 <h2 className="font-heading text-2xl font-bold sm:text-3xl">Shop by Category</h2>
                 <p className="mt-1 text-sm text-muted-foreground">Find exactly what you need</p>
@@ -41,6 +48,6 @@ export default function CategoryGrid() {
                     ))
                 )}
             </div>
-        </section>
+        </motion.section>
     );
 }
