@@ -19,9 +19,9 @@ const LoadingScreen = ({ onComplete }) => {
           initial={{ scale: 0.95 }}
           animate={{ scale: 1 }}
           transition={{ duration: 2, ease: "easeOut" }}
-          src="/file_00000000e5488211a30a7a0c477318d0.png"
+          src="/01_ZF_White_on_Black.png"
           alt="Zero Fashion Loading"
-          className="h-24 md:h-32 mb-8 object-contain drop-shadow-2xl"
+          className="h-24 md:h-32 mb-4 object-contain rounded-2xl shadow-[0_0_50px_-5px_rgba(255,255,255,0.1)]"
         />
         
         {/* Elegant thin progress bar */}
