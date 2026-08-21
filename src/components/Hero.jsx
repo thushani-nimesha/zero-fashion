@@ -1,5 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+
+function CountUp({ end, duration = 2000, suffix = "" }) {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        let startTime = null;
+        let animationFrameId;
+        
+        const animate = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            setCount(Math.floor(progress * end));
+            if (progress < 1) {
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        };
+        
+        animationFrameId = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [end, duration]);
+
+    return <span>{count.toLocaleString()}{suffix}</span>;
+}
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -77,7 +100,9 @@ export default function Hero() {
                         className="mt-12 flex items-center gap-8 border-t border-border pt-8"
                     >
                         <div>
-                            <p className="font-heading text-3xl font-bold text-foreground">10k+</p>
+                            <p className="font-heading text-3xl font-bold text-foreground">
+                                <CountUp end={10} suffix="k+" />
+                            </p>
                             <p className="mt-1 text-sm text-muted-foreground font-medium uppercase tracking-wide">Happy Customers</p>
                         </div>
                         <div className="w-px h-12 bg-border"></div>
@@ -87,7 +112,9 @@ export default function Hero() {
                         </div>
                         <div className="w-px h-12 bg-border"></div>
                         <div>
-                            <p className="font-heading text-3xl font-bold text-foreground">24h</p>
+                            <p className="font-heading text-3xl font-bold text-foreground">
+                                <CountUp end={24} suffix="h" />
+                            </p>
                             <p className="mt-1 text-sm text-muted-foreground font-medium uppercase tracking-wide">Fast Delivery</p>
                         </div>
                     </motion.div>
