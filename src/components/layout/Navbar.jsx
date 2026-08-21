@@ -19,6 +19,7 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -54,16 +55,53 @@ export default function Navbar() {
           )}
         </div>
 
-        <form onSubmit={submit} className="ml-auto hidden max-w-xs flex-1 md:block">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Search products…" className="border-border bg-muted/50 pl-9" />
-          </div>
-        </form>
+        <div className="ml-auto hidden items-center md:flex relative">
+          <form 
+            onSubmit={submit} 
+            className="flex items-center"
+            onMouseEnter={() => setSearchExpanded(true)}
+            onMouseLeave={() => { if (!q) setSearchExpanded(false); }}
+          >
+            <div className={`relative flex items-center h-10 transition-all duration-500 ease-in-out ${searchExpanded ? 'w-64' : 'w-10'}`}>
+              <button
+                type="submit"
+                onClick={(e) => {
+                  if (!searchExpanded) {
+                    e.preventDefault();
+                    setSearchExpanded(true);
+                  }
+                }}
+                className="absolute z-10 flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-300 left-0.5"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+              <input
+                value={q}
+                onChange={e => setQ(e.target.value)}
+                placeholder="Search products…"
+                className={`w-full h-9 bg-muted/40 border border-border text-sm rounded-full pl-9 pr-4 outline-none transition-all duration-500 ease-in-out focus:border-primary/50 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] ${
+                  searchExpanded ? 'opacity-100 scale-x-100 origin-left' : 'opacity-0 scale-x-0 origin-left pointer-events-none'
+                }`}
+              />
+            </div>
+          </form>
+        </div>
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="relative touch-manipulation">
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+            className="relative touch-manipulation overflow-hidden rounded-full h-9 w-9 flex items-center justify-center"
+          >
+            <div className="relative w-5 h-5 flex items-center justify-center">
+              <Sun className={`h-5 w-5 text-yellow-500 absolute transition-all duration-500 ease-out ${
+                theme === 'dark' ? 'translate-y-0 scale-100 opacity-100 rotate-0' : 'translate-y-6 scale-50 opacity-0 -rotate-90'
+              }`} />
+              <Moon className={`h-5 w-5 text-indigo-400 absolute transition-all duration-500 ease-out ${
+                theme === 'light' ? 'translate-y-0 scale-100 opacity-100 rotate-0' : '-translate-y-6 scale-50 opacity-0 rotate-90'
+              }`} />
+            </div>
           </Button>
           <Button variant="ghost" size="icon" onClick={openCart} className="relative touch-manipulation">
             <ShoppingCart className="h-5 w-5" />
