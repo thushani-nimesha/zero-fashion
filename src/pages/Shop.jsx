@@ -56,21 +56,69 @@ export default function Shop() {
                         <Input defaultValue={q} placeholder="Search…" className="bg-muted/50 pl-9" onChange={e => setParam('q', e.target.value)} />
                     </div>
                     <div>
-                        <h3 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wide text-muted-foreground">Categories</h3>
-                        <ul className="space-y-1 text-sm">
-                            <li><button className={`hover:text-primary ${!category ? 'font-medium text-primary' : ''}`} onClick={() => setParam('category', '')}>All</button></li>
+                        <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-muted-foreground">Categories</h3>
+                        <ul className="space-y-1.5 text-sm">
+                            <li>
+                                <button 
+                                    className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-between border ${
+                                        !category 
+                                        ? 'bg-primary/10 text-primary border-primary/30 shadow-[0_0_15px_rgba(255,255,255,0.05)] font-semibold scale-[1.02]' 
+                                        : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/30 hover:translate-x-1.5'
+                                    }`} 
+                                    onClick={() => setParam('category', '')}
+                                >
+                                    <span>All</span>
+                                    {!category && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                                </button>
+                            </li>
                             {categories.map(c => (
-                                <li key={c}><button className={`hover:text-primary ${category === c ? 'font-medium text-primary' : ''}`} onClick={() => setParam('category', category === c ? '' : c)}>{c}</button></li>
+                                <li key={c}>
+                                    <button 
+                                        className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-between border ${
+                                            category === c 
+                                            ? 'bg-primary/10 text-primary border-primary/30 shadow-[0_0_15px_rgba(255,255,255,0.05)] font-semibold scale-[1.02]' 
+                                            : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/30 hover:translate-x-1.5'
+                                        }`} 
+                                        onClick={() => setParam('category', category === c ? '' : c)}
+                                    >
+                                        <span>{c}</span>
+                                        {category === c && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                                    </button>
+                                </li>
                             ))}
                         </ul>
                     </div>
                     {brands.length > 0 && (
                         <div>
-                            <h3 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wide text-muted-foreground">Brands</h3>
-                            <ul className="space-y-1 text-sm">
-                                <li><button className={`hover:text-primary ${!brand ? 'font-medium text-primary' : ''}`} onClick={() => setParam('brand', '')}>All</button></li>
+                            <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-muted-foreground">Brands</h3>
+                            <ul className="space-y-1.5 text-sm">
+                                <li>
+                                    <button 
+                                        className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-between border ${
+                                            !brand 
+                                            ? 'bg-primary/10 text-primary border-primary/30 shadow-[0_0_15px_rgba(255,255,255,0.05)] font-semibold scale-[1.02]' 
+                                            : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/30 hover:translate-x-1.5'
+                                        }`} 
+                                        onClick={() => setParam('brand', '')}
+                                    >
+                                        <span>All</span>
+                                        {!brand && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                                    </button>
+                                </li>
                                 {brands.map(b => (
-                                    <li key={b}><button className={`hover:text-primary ${brand === b ? 'font-medium text-primary' : ''}`} onClick={() => setParam('brand', brand === b ? '' : b)}>{b}</button></li>
+                                    <li key={b}>
+                                        <button 
+                                            className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-between border ${
+                                                brand === b 
+                                                ? 'bg-primary/10 text-primary border-primary/30 shadow-[0_0_15px_rgba(255,255,255,0.05)] font-semibold scale-[1.02]' 
+                                                : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/30 hover:translate-x-1.5'
+                                            }`} 
+                                            onClick={() => setParam('brand', brand === b ? '' : b)}
+                                        >
+                                            <span>{b}</span>
+                                            {brand === b && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                                        </button>
+                                    </li>
                                 ))}
                             </ul>
                         </div>
