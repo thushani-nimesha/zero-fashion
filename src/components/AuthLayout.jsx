@@ -11,7 +11,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
                     {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
                 </div>
-                <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
+                <div className="bg-card/60 backdrop-blur-md rounded-[2rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] dark:shadow-[0_20px_50px_rgba(255,255,255,0.03)] border border-border/80 dark:border-white/10 p-8 relative">
                     {children}
                 </div>
                 {footer && (

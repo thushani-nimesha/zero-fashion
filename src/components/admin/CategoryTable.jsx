@@ -39,7 +39,7 @@ export default function CategoryTable({ categories, onChange }) {
             </div>
             <div className="divide-y divide-border">
                 {categories.map((cat) => (
-                    <div key={cat.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3">
+                    <div key={cat.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3 transition-colors duration-200 hover:bg-muted/40">
                         <div className="h-12 w-16 overflow-hidden rounded-md border border-border">
                             {cat.img ? (
                                 <img src={cat.img} alt={cat.name} className="h-full w-full object-cover" />

@@ -36,8 +36,8 @@ export default function ProductDetail() {
             </nav>
 
             <div className="grid gap-8 lg:grid-cols-2">
-                <div className="overflow-hidden rounded-2xl border border-border bg-card">
-                    <Image src={product.image} alt={product.name} fittingType="fill" className="aspect-square w-full" />
+                <div className="overflow-hidden rounded-2xl border border-border bg-card group">
+                    <Image src={product.image} alt={product.name} fittingType="fill" className="aspect-square w-full transition-transform duration-500 ease-out group-hover:scale-105" />
                 </div>
                 <div>
                     <p className="text-sm font-semibold uppercase tracking-wide text-accent">{product.brand}</p>

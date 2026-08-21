@@ -8,8 +8,8 @@ import { useCart } from '@/lib/cart-context';
 export default function ProductCard({ product }) {
     const { addItem } = useCart();
     return (
-        <div className="group flex flex-col">
-            <Link to={`/product/${product.id}`} className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted/40">
+        <div className="group flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_24px_-10px_rgba(0,0,0,0.3)] dark:hover:shadow-[0_12px_24px_-10px_rgba(255,255,255,0.06)] rounded-2xl p-2 bg-transparent hover:bg-card border border-transparent hover:border-border/50">
+            <Link to={`/product/${product.id}`} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted/40">
                 <Image src={product.image} alt={product.name} fittingType="fill" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                 {product.old_price ? (
                     <span className="absolute left-3 top-3 rounded-full bg-destructive px-2 py-1 text-xs font-bold tracking-wider text-destructive-foreground shadow-sm">

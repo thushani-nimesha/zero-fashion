@@ -20,8 +20,16 @@ export default function Navbar() {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
+  const [cartPop, setCartPop] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    if (count === 0) return;
+    setCartPop(true);
+    const timer = setTimeout(() => setCartPop(false), 500);
+    return () => clearTimeout(timer);
+  }, [count]);
 
   const submit = (e) => {
     e.preventDefault();
@@ -103,9 +111,20 @@ export default function Navbar() {
               }`} />
             </div>
           </Button>
-          <Button variant="ghost" size="icon" onClick={openCart} className="relative touch-manipulation">
-            <ShoppingCart className="h-5 w-5" />
-            {count > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{count}</span>}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={openCart} 
+            className={`relative touch-manipulation transition-all duration-300 ${cartPop ? 'scale-110 text-primary' : ''}`}
+          >
+            <ShoppingCart className={`h-5 w-5 transition-transform duration-300 ${cartPop ? 'scale-110' : ''}`} />
+            {count > 0 && (
+              <span className={`absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground transition-all duration-300 ${
+                cartPop ? 'scale-110 animate-bounce' : ''
+              }`}>
+                {count}
+              </span>
+            )}
           </Button>
           <Button variant="ghost" size="icon" className="md:hidden touch-manipulation" onClick={() => setOpen(v => !v)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

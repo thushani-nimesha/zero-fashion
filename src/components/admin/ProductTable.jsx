@@ -27,7 +27,7 @@ export default function ProductTable({ products, onChange, onEdit, editingId }) 
             <div className="divide-y divide-border">
                 {products.length === 0 ? <p className="p-6 text-center text-sm text-muted-foreground">No products yet.</p> : null}
                 {products.map(p => (
-                    <div key={p.id} className="flex items-center gap-3 p-3">
+                    <div key={p.id} className="flex items-center gap-3 p-3 transition-colors duration-200 hover:bg-muted/40">
                         <img src={p.image} alt={p.name} className="h-12 w-12 rounded-md border border-border object-cover" />
                         <div className="min-w-0 flex-1">
                             <p className="line-clamp-1 text-sm font-medium">{p.name}</p>
