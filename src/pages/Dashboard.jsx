@@ -54,7 +54,10 @@ export default function Dashboard() {
     }, [user]);
 
     useEffect(() => {
-        if (!user?.email) return;
+        if (!user?.email) {
+            setLoading(false);
+            return;
+        }
         
         const fetchDashboardData = () => {
             apiClient.entities.Order.filterByEmail(user.email)

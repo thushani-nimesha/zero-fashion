@@ -246,7 +246,7 @@ export const apiClient = {
                                 const userSnap = await get(ref(db, `users/${user.uid}`));
                                 const provider = user.providerData?.[0]?.providerId === 'google.com' ? 'google' : 'password';
                                 if (userSnap.exists()) {
-                                    resolve({ ...userSnap.val(), provider });
+                                    resolve({ email: user.email, ...userSnap.val(), provider });
                                 } else {
                                     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
                                     const isAdmin = user.email === adminEmail;
@@ -308,8 +308,20 @@ export const apiClient = {
             if (hasFirebase) {
                 const currentUser = auth.currentUser;
                 if (!currentUser) throw new Error("Not authenticated");
-                await update(ref(db, `users/${currentUser.uid}`), profileData);
-                return { ...currentUser, ...profileData };
+                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+                const existing = userSnap.exists() ? userSnap.val() : {};
+                const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+                const isAdmin = currentUser.email === adminEmail;
+                const merged = {
+                    id: currentUser.uid,
+                    email: currentUser.email || existing.email || '',
+                    name: existing.name || currentUser.displayName || 'User',
+                    role: existing.role || (isAdmin ? 'admin' : 'user'),
+                    ...existing,
+                    ...profileData
+                };
+                await set(ref(db, `users/${currentUser.uid}`), merged);
+                return merged;
             }
             const currentUserId = sessionStorage.getItem('zf_current_user_id');
             if (currentUserId) {
