@@ -356,6 +356,10 @@ export const apiClient = {
             return false;
         }
     },
+    uploadFile: async (file) => {
+        const res = await apiClient.integrations.Core.UploadFile({ file });
+        return res.file_url;
+    },
     entities: {
         Category: {
             list: async () => {
