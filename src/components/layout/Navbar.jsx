@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, Search, Menu, X, Shirt, Moon, Sun } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, Shirt, Moon, Sun, UserCircle } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/lib/theme-provider';
@@ -52,16 +52,12 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop Auth Links */}
-        <div className="hidden md:flex items-center gap-2 ml-4">
-          {isAuthenticated ? (
-            <Button variant="outline" size="sm" asChild><Link to={user?.role === 'admin' ? '/admin' : '/dashboard'}>My Account</Link></Button>
-          ) : (
-            <>
-              <Button variant="ghost" size="sm" asChild><Link to="/login">Login</Link></Button>
-              <Button size="sm" asChild><Link to="/register">Register</Link></Button>
-            </>
-          )}
-        </div>
+        {!isAuthenticated && (
+          <div className="hidden md:flex items-center gap-2 ml-4">
+            <Button variant="ghost" size="sm" asChild><Link to="/login">Login</Link></Button>
+            <Button size="sm" asChild><Link to="/register">Register</Link></Button>
+          </div>
+        )}
 
         <div className="ml-auto hidden items-center md:flex relative">
           <form 
@@ -126,6 +122,44 @@ export default function Navbar() {
               </span>
             )}
           </Button>
+
+          {isAuthenticated && (
+            <div className="relative group ml-1">
+              <Link 
+                to={user?.role === 'admin' ? '/admin' : '/dashboard'} 
+                className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer overflow-visible"
+              >
+                {user?.name ? user.name[0].toUpperCase() : <UserCircle className="h-5 w-5" />}
+              </Link>
+              
+              {/* Premium Hover Dropdown Card (Desktop Only) */}
+              <div className="hidden md:block absolute right-0 top-full mt-2 w-56 rounded-2xl bg-card border border-border p-4 shadow-xl opacity-0 scale-95 translate-y-1 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto z-50">
+                <div className="flex flex-col gap-1 pb-3 border-b border-border text-left">
+                  <p className="text-sm font-bold text-foreground truncate">{user?.name || 'Customer'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+                <div className="pt-2 flex flex-col gap-1 text-left">
+                  <Link 
+                    to={user?.role === 'admin' ? '/admin' : '/dashboard'} 
+                    className="text-xs px-2.5 py-1.5 rounded-lg hover:bg-muted/60 transition-colors flex items-center justify-between text-muted-foreground hover:text-foreground"
+                  >
+                    <span>Dashboard</span>
+                    <span className="text-[10px] bg-primary/10 px-1.5 py-0.5 rounded text-primary uppercase font-bold">{user?.role || 'user'}</span>
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      navigate('/');
+                    }}
+                    className="text-xs text-left px-2.5 py-1.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors mt-1"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <Button variant="ghost" size="icon" className="md:hidden touch-manipulation" onClick={() => setOpen(v => !v)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
