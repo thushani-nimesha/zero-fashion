@@ -593,6 +593,38 @@ export const apiClient = {
                     orderListeners.delete(callback);
                 };
             }
+        },
+        User: {
+            list: async () => {
+                if (hasFirebase) {
+                    const snapshot = await get(ref(db, 'users'));
+                    return snapToArray(snapshot);
+                }
+                return getLocal('zf_users', []);
+            },
+            update: async (id, data) => {
+                if (hasFirebase) {
+                    await update(ref(db, `users/${id}`), data);
+                    return { id, ...data };
+                }
+                const users = getLocal('zf_users', []);
+                const idx = users.findIndex(u => u.id === id);
+                if (idx !== -1) {
+                    users[idx] = { ...users[idx], ...data };
+                    setLocal('zf_users', users);
+                }
+                return { id, ...data };
+            },
+            delete: async (id) => {
+                if (hasFirebase) {
+                    await remove(ref(db, `users/${id}`));
+                    return true;
+                }
+                const users = getLocal('zf_users', []);
+                const filtered = users.filter(u => u.id !== id);
+                setLocal('zf_users', filtered);
+                return true;
+            }
         }
     },
     integrations: {

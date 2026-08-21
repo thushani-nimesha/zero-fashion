@@ -25,6 +25,7 @@ import Orders from '@/pages/Orders';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import OnboardingModal from '@/components/OnboardingModal';
+import { Button } from '@/components/ui/button';
 
 const AuthenticatedApp = () => {
   const { user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -43,6 +44,18 @@ const AuthenticatedApp = () => {
       // Redirect to login automatically
       navigateToLogin();
       return null;
+    } else if (authError.type === 'user_banned') {
+      return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-center">
+          <div className="max-w-md space-y-5 bg-card/60 backdrop-blur-xl border border-destructive/20 p-8 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)]">
+            <h1 className="text-3xl font-heading font-bold text-destructive">Account Suspended</h1>
+            <p className="text-muted-foreground text-sm">Your account has been suspended by an administrator. If you think this is a mistake, please contact support.</p>
+            <Button onClick={() => window.location.href = '/login'} variant="outline" className="rounded-full px-6">
+              Back to Login
+            </Button>
+          </div>
+        </div>
+      );
     }
   }
 

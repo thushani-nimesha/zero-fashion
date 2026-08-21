@@ -42,6 +42,14 @@ export const AuthProvider = ({ children }) => {
             // Now check if the user is authenticated
             setIsLoadingAuth(true);
             const currentUser = await apiClient.auth.me();
+            if (currentUser && currentUser.banned) {
+                logout(false);
+                setAuthError({
+                    type: 'user_banned',
+                    message: 'Your account has been suspended by an administrator.'
+                });
+                return;
+            }
             setUser(currentUser);
             setIsAuthenticated(true);
             setIsLoadingAuth(false);
