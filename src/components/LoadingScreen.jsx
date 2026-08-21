@@ -15,14 +15,43 @@ const LoadingScreen = ({ onComplete }) => {
         transition={{ duration: 1, ease: "easeOut" }}
         className="flex flex-col items-center"
       >
-        <motion.img
-          initial={{ scale: 0.95 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-          src="/01_ZF_White_on_Black.png"
-          alt="Zero Fashion Loading"
-          className="h-24 md:h-32 mb-4 object-contain rounded-2xl shadow-[0_0_50px_-5px_rgba(255,255,255,0.1)]"
-        />
+        {/* Sony-style staggered letter animation */}
+        <div className="font-heading text-4xl md:text-5xl font-extrabold tracking-[0.2em] flex flex-wrap justify-center gap-x-6 mb-8 uppercase select-none">
+          <div className="flex">
+            {"ZERO".split("").map((char, index) => (
+              <motion.span
+                key={`zero-${index}`}
+                initial={{ opacity: 0, filter: "blur(8px)", y: 5 }}
+                animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.08,
+                  ease: [0.25, 1, 0.5, 1]
+                }}
+                className="text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]"
+              >
+                {char}
+              </motion.span>
+            ))}
+          </div>
+          <div className="flex">
+            {"FASHION".split("").map((char, index) => (
+              <motion.span
+                key={`fashion-${index}`}
+                initial={{ opacity: 0, filter: "blur(8px)", y: 5 }}
+                animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                transition={{
+                  duration: 0.8,
+                  delay: (index + 4) * 0.08,
+                  ease: [0.25, 1, 0.5, 1]
+                }}
+                className="text-primary drop-shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
+              >
+                {char}
+              </motion.span>
+            ))}
+          </div>
+        </div>
         
         {/* Elegant thin progress bar */}
         <div className="w-48 md:w-64 h-[1px] bg-neutral-800 relative overflow-hidden mt-4">
