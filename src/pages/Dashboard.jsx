@@ -5,6 +5,7 @@ import { Package, UserCircle, LogOut, Clock, Truck, CheckCircle2, XCircle, Layou
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { motion } from 'framer-motion';
 
 const statusConfig = {
     pending: { color: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20', icon: Clock },
@@ -77,40 +78,56 @@ export default function Dashboard() {
     if (!user) return null;
 
     return (
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+        >
             <div className="flex flex-col md:flex-row gap-8">
                 {/* Sidebar */}
                 <aside className="w-full md:w-64 flex-shrink-0">
-                    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                    <div className="bg-card/45 backdrop-blur-xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_0_60px_-10px_rgba(255,255,255,0.04)] border border-border/60 dark:border-white/10 p-6 relative overflow-hidden before:absolute before:top-0 before:left-1/6 before:right-1/6 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-primary/50 before:to-transparent">
                         <div className="flex flex-col items-center text-center pb-6 border-b border-border">
-                            <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                <UserCircle className="h-10 w-10 text-primary" />
+                            <div className="h-20 w-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 text-2xl font-bold text-primary shadow-lg shadow-primary/10 relative">
+                                {user.name ? user.name[0].toUpperCase() : <UserCircle className="h-10 w-10" />}
                             </div>
                             <h2 className="font-heading font-bold text-lg">{user.name || 'Customer'}</h2>
                             <p className="text-sm text-muted-foreground break-all">{user.email}</p>
                         </div>
                         <nav className="mt-6 flex flex-col gap-2">
-                            <Button 
-                                variant={activeTab === 'orders' ? 'secondary' : 'ghost'} 
-                                className="justify-start" 
+                            <button 
+                                className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-between border text-sm ${
+                                    activeTab === 'orders' 
+                                    ? 'bg-primary/10 text-primary border-primary/30 shadow-[0_0_15px_rgba(255,255,255,0.05)] font-semibold scale-[1.02]' 
+                                    : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/30 hover:translate-x-1.5'
+                                }`} 
                                 onClick={() => setActiveTab('orders')}
                             >
-                                <Package className="mr-2 h-4 w-4" /> My Orders
-                            </Button>
-                            <Button 
-                                variant={activeTab === 'profile' ? 'secondary' : 'ghost'} 
-                                className="justify-start" 
+                                <span className="flex items-center gap-2">
+                                    <Package className="h-4 w-4" /> My Orders
+                                </span>
+                                {activeTab === 'orders' && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                            </button>
+                            <button 
+                                className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-between border text-sm ${
+                                    activeTab === 'profile' 
+                                    ? 'bg-primary/10 text-primary border-primary/30 shadow-[0_0_15px_rgba(255,255,255,0.05)] font-semibold scale-[1.02]' 
+                                    : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/30 hover:translate-x-1.5'
+                                }`} 
                                 onClick={() => setActiveTab('profile')}
                             >
-                                <UserCircle className="mr-2 h-4 w-4" /> Account Details
-                            </Button>
-                            <Button 
-                                variant="ghost" 
-                                className="justify-start text-destructive hover:text-destructive hover:bg-destructive/10 mt-4" 
+                                <span className="flex items-center gap-2">
+                                    <UserCircle className="h-4 w-4" /> Account Details
+                                </span>
+                                {activeTab === 'profile' && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
+                            </button>
+                            <button 
+                                className="w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 border border-transparent text-sm text-destructive hover:bg-destructive/10 hover:translate-x-1.5 mt-4" 
                                 onClick={handleLogout}
                             >
-                                <LogOut className="mr-2 h-4 w-4" /> Logout
-                            </Button>
+                                <LogOut className="h-4 w-4" /> Logout
+                            </button>
                         </nav>
                     </div>
                 </aside>
@@ -204,7 +221,7 @@ export default function Dashboard() {
                     {activeTab === 'profile' && (
                         <div className="space-y-6">
                             <h1 className="font-heading text-2xl font-bold">Account Details</h1>
-                            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                            <div className="bg-card/45 backdrop-blur-xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_0_60px_-10px_rgba(255,255,255,0.04)] border border-border/60 dark:border-white/10 p-8 relative overflow-hidden before:absolute before:top-0 before:left-1/6 before:right-1/6 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-primary/50 before:to-transparent">
                                 <div className="grid gap-6 sm:grid-cols-2">
                                     <div>
                                         <p className="text-sm text-muted-foreground mb-1">Name</p>
@@ -227,6 +244,6 @@ export default function Dashboard() {
                     )}
                 </main>
             </div>
-        </div>
+        </motion.div>
     );
 }
