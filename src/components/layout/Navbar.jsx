@@ -51,13 +51,7 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Desktop Auth Links */}
-        {!isAuthenticated && (
-          <div className="hidden md:flex items-center gap-2 ml-4">
-            <Button variant="ghost" size="sm" asChild><Link to="/login">Login</Link></Button>
-            <Button size="sm" asChild><Link to="/register">Register</Link></Button>
-          </div>
-        )}
+        {/* Guest menu moved to right-side avatar */}
 
         <div className="ml-auto hidden items-center md:flex relative">
           <form 
@@ -155,6 +149,29 @@ export default function Navbar() {
                   >
                     Logout
                   </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <div className="relative group ml-1">
+              <Link 
+                to="/login" 
+                className="h-9 w-9 rounded-full bg-muted/80 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer overflow-visible"
+              >
+                <UserCircle className="h-5 w-5" />
+              </Link>
+              
+              {/* Premium Hover Dropdown Card (Desktop Only) */}
+              <div className="hidden md:block absolute right-0 top-full mt-2 w-56 rounded-2xl bg-card border border-border p-4 shadow-xl opacity-0 scale-95 translate-y-1 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto z-50">
+                <div className="flex flex-col gap-1 pb-3 border-b border-border text-left">
+                  <p className="text-sm font-bold text-foreground">Welcome Guest</p>
+                  <p className="text-xs text-muted-foreground">Sign in to check out and track orders</p>
+                </div>
+                <div className="pt-3 flex flex-col gap-2">
+                  <Button size="sm" asChild className="w-full text-xs rounded-lg"><Link to="/login">Login</Link></Button>
+                  <Button size="sm" variant="outline" asChild className="w-full text-xs rounded-lg"><Link to="/register">Register</Link></Button>
                 </div>
               </div>
             </div>
