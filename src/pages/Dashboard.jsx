@@ -385,7 +385,7 @@ export default function Dashboard() {
                                                                     setEditPhotoUrl(url);
                                                                     toast({ title: 'Photo uploaded successfully' });
                                                                 } catch (err) {
-                                                                    toast({ title: 'Upload failed', variant: 'destructive' });
+                                                                    toast({ title: 'Upload failed', description: err.message || String(err), variant: 'destructive' });
                                                                 } finally {
                                                                     setUploading(false);
                                                                 }

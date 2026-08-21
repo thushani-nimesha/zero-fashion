@@ -25,7 +25,7 @@ export default function OnboardingModal() {
             setPhotoUrl(url);
             toast({ title: 'Profile photo uploaded successfully!' });
         } catch (err) {
-            toast({ title: 'Failed to upload photo', variant: 'destructive' });
+            toast({ title: 'Failed to upload photo', description: err.message || String(err), variant: 'destructive' });
         } finally {
             setUploading(false);
         }
