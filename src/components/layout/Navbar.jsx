@@ -121,9 +121,15 @@ export default function Navbar() {
             <div className="relative group ml-1">
               <Link 
                 to={user?.role === 'admin' ? '/admin' : '/dashboard'} 
-                className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer overflow-visible"
+                className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer overflow-hidden"
               >
-                {user?.name ? user.name[0].toUpperCase() : <UserCircle className="h-5 w-5" />}
+                {user?.photo_url ? (
+                  <img src={user.photo_url} alt="Profile" className="h-full w-full object-cover" />
+                ) : user?.name ? (
+                  user.name[0].toUpperCase()
+                ) : (
+                  <UserCircle className="h-5 w-5" />
+                )}
               </Link>
               
               {/* Premium Hover Dropdown Card (Desktop Only) */}

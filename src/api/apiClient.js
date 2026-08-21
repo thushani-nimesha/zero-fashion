@@ -162,7 +162,7 @@ export const apiClient = {
             sessionStorage.setItem('zf_current_user_id', existingUser.id);
             if (redirectUrl) window.location.href = redirectUrl;
         },
-        register: async ({ email, password, name, phone }) => {
+        register: async ({ email, password, name, phone, photo_url }) => {
             if (hasFirebase) {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
@@ -171,6 +171,7 @@ export const apiClient = {
                     email,
                     name,
                     phone,
+                    photo_url: photo_url || '',
                     role: email === import.meta.env.VITE_ADMIN_EMAIL ? 'admin' : 'user',
                     phoneVerified: false
                 };
@@ -187,6 +188,7 @@ export const apiClient = {
                 password,
                 name,
                 phone,
+                photo_url: photo_url || '',
                 role: (email === import.meta.env.VITE_ADMIN_EMAIL || email.includes('admin')) ? 'admin' : 'user',
                 phoneVerified: false
             };
@@ -293,6 +295,45 @@ export const apiClient = {
         },
         redirectToLogin: (redirectUrl) => {
             window.location.href = `/login?redirect=${encodeURIComponent(redirectUrl)}`;
+        },
+        updateProfile: async (profileData) => {
+            if (hasFirebase) {
+                const currentUser = auth.currentUser;
+                if (!currentUser) throw new Error("Not authenticated");
+                await update(ref(db, `users/${currentUser.uid}`), profileData);
+                return { ...currentUser, ...profileData };
+            }
+            const currentUserId = sessionStorage.getItem('zf_current_user_id');
+            if (currentUserId) {
+                const users = getLocal('zf_users', []);
+                const userIdx = users.findIndex(u => u.id === currentUserId);
+                if (userIdx !== -1) {
+                    users[userIdx] = { ...users[userIdx], ...profileData };
+                    setLocal('zf_users', users);
+                    return users[userIdx];
+                }
+            }
+            throw new Error("User not found");
+        },
+        changePassword: async (newPassword) => {
+            if (hasFirebase) {
+                const currentUser = auth.currentUser;
+                if (!currentUser) throw new Error("Not authenticated");
+                const { updatePassword } = await import('firebase/auth');
+                await updatePassword(currentUser, newPassword);
+                return true;
+            }
+            const currentUserId = sessionStorage.getItem('zf_current_user_id');
+            if (currentUserId) {
+                const users = getLocal('zf_users', []);
+                const userIdx = users.findIndex(u => u.id === currentUserId);
+                if (userIdx !== -1) {
+                    users[userIdx].password = newPassword;
+                    setLocal('zf_users', users);
+                    return true;
+                }
+            }
+            return false;
         }
     },
     entities: {

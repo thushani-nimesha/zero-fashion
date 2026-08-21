@@ -4,7 +4,7 @@ import { apiClient } from "@/api/apiClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2, User, Phone } from "lucide-react";
+import { UserPlus, Mail, Lock, Loader2, User, Phone, Image } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
@@ -14,6 +14,7 @@ export default function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [photoUrl, setPhotoUrl] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
@@ -30,7 +31,7 @@ export default function Register() {
         }
         setLoading(true);
         try {
-            await apiClient.auth.register({ email, password, name, phone });
+            await apiClient.auth.register({ email, password, name, phone, photo_url: photoUrl });
             setShowOtp(true);
         } catch (err) {
             setError(err.message || "Registration failed");
@@ -213,6 +214,20 @@ export default function Register() {
                             onChange={(e) => setPhone(e.target.value)}
                             className="pl-10 h-12"
                             required
+                        />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="photo">Profile Photo URL (Optional)</Label>
+                    <div className="relative">
+                        <Image className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                        <Input
+                            id="photo"
+                            type="text"
+                            placeholder="https://example.com/avatar.jpg"
+                            value={photoUrl}
+                            onChange={(e) => setPhotoUrl(e.target.value)}
+                            className="pl-10 h-12"
                         />
                     </div>
                 </div>

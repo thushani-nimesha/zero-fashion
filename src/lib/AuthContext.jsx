@@ -80,6 +80,12 @@ export const AuthProvider = ({ children }) => {
         apiClient.auth.redirectToLogin(window.location.href);
     };
 
+    const updateCurrentUser = async (profileData) => {
+        const updated = await apiClient.auth.updateProfile(profileData);
+        setUser(prev => ({ ...prev, ...profileData }));
+        return updated;
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -92,7 +98,8 @@ export const AuthProvider = ({ children }) => {
             logout,
             navigateToLogin,
             checkUserAuth,
-            checkAppState
+            checkAppState,
+            updateCurrentUser
         }}>
             {children}
         </AuthContext.Provider>
