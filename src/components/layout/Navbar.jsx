@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/lib/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const publicLinks = [
   { label: 'Home', to: '/' },
@@ -189,44 +190,52 @@ export default function Navbar() {
         </div>
       </div>
 
-      {open && (
-        <div className="border-t border-border md:hidden bg-background">
-          <div className="mx-auto max-w-7xl space-y-2 px-4 py-3">
-            <form onSubmit={submit} className="relative mb-4">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Search products…" className="bg-muted/50 pl-9" />
-            </form>
-            {publicLinks.map(l => (
-              <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:text-primary">{l.label}</Link>
-            ))}
-            
-            {/* Mobile Auth Links */}
-            <div className="pt-4 mt-4 border-t border-border">
-              {isAuthenticated ? (
-                <>
-                  <div className="px-3 py-2 text-sm font-medium text-muted-foreground">Signed in as {user?.email}</div>
-                  <Link to={user?.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setOpen(false)} className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium hover:text-primary">My Account</Link>
-                  <button 
-                    onClick={async () => {
-                      setOpen(false);
-                      await logout();
-                      navigate('/');
-                    }} 
-                    className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 mt-1"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:text-primary">Login</Link>
-                  <Link to="/register" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium text-primary hover:text-primary/80">Register</Link>
-                </>
-              )}
+      <AnimatePresence>
+        {open && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="border-t border-border md:hidden bg-background overflow-hidden"
+          >
+            <div className="mx-auto max-w-7xl space-y-2 px-4 py-3">
+              <form onSubmit={submit} className="relative mb-4">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Search products…" className="bg-muted/50 pl-9" />
+              </form>
+              {publicLinks.map(l => (
+                <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:text-primary transition-colors">{l.label}</Link>
+              ))}
+              
+              {/* Mobile Auth Links */}
+              <div className="pt-4 mt-4 border-t border-border">
+                {isAuthenticated ? (
+                  <>
+                    <div className="px-3 py-2 text-sm font-medium text-muted-foreground">Signed in as {user?.email}</div>
+                    <Link to={user?.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setOpen(false)} className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium hover:text-primary transition-colors">My Account</Link>
+                    <button 
+                      onClick={async () => {
+                        setOpen(false);
+                        await logout();
+                        navigate('/');
+                      }} 
+                      className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors mt-1"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Login</Link>
+                    <Link to="/register" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors">Register</Link>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
