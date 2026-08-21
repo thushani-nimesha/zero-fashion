@@ -22,6 +22,8 @@ import { CartProvider } from '@/lib/cart-context';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Admin from '@/pages/Admin';
 import Orders from '@/pages/Orders';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -54,6 +56,8 @@ const AuthenticatedApp = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
