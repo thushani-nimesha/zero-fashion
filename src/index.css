@@ -90,3 +90,9 @@
   border: 2px solid transparent;
   background-clip: padding-box;
 }
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}

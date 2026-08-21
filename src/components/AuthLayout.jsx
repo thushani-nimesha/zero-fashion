@@ -8,10 +8,12 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full bg-primary/10 dark:bg-primary/5 blur-[120px] pointer-events-none" />
 
             <div className="w-full max-w-md relative z-10">
-                <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4 shadow-lg shadow-primary/20">
-                        <Icon className="w-7 h-7 text-primary-foreground" aria-hidden="true" />
-                    </div>
+                <div className="text-center mb-10 flex flex-col items-center">
+                    <img 
+                        src="/05_ZF_Rounded_Square_Icon.png" 
+                        alt="Zero Fashion Logo" 
+                        className="h-16 w-16 rounded-[1.25rem] shadow-xl shadow-primary/10 object-cover mb-4 animate-[float_3.5s_infinite_ease-in-out]" 
+                    />
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
                     {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
                 </div>
